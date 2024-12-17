@@ -10,7 +10,7 @@ LOG_FILE = 'log.txt'
 attack_in_progress = False
 users = set()
 user_approval_expiry = {}
-TELEGRAM_BOT_TOKEN = '7481827995:AAHbdhiYvuRRzzzcgTIppoNqW6MfUCuSbTE'
+TELEGRAM_BOT_TOKEN = '7739259868:AAE5nYLnAiHUROnmFO1fIS7b6FOl61CTeYQ'
 
 
 def load_users():
