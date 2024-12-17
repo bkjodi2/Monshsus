@@ -163,7 +163,7 @@ async def attack(update: Update, context: CallbackContext):
     args = context.args
 
     if user_id not in users or get_remaining_approval_time(user_id) == "Expired":
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ **BSDK APPROVAL LA @Mk_ddoa** .*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️ **BSDK APPROVAL LALA @Mk_ddos** .*", parse_mode='Markdown')
         return
 
     if attack_in_progress:
