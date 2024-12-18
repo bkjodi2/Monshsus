@@ -1,4 +1,4 @@
-import asyncio
+ipimport asyncio
 import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
@@ -163,7 +163,7 @@ async def attack(update: Update, context: CallbackContext):
     args = context.args
 
     if user_id not in users or get_remaining_approval_time(user_id) == "Expired":
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ **BSDK APPROVAL LALA @Mk_ddos** .*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️ **SIR APPROVE KI COMMAND DALA** .*", parse_mode='Markdown')
         return
 
     if attack_in_progress:
